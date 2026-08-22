@@ -1,0 +1,20 @@
+account = input("Enter the account you are trying to log into: ")
+username = input("Enter your username: ")
+password = input("Enter your password: ")
+rotational_interval = int(input("Enter the rotational interval (in months): "))
+password_length = len(password)
+length_score = password_length * 10
+rotational_count = 36 // rotational_interval
+
+print("===============================")
+print("    PASSWORD AUDIT REPORT")
+print("===============================")
+print("Account: " + account)
+print("Username: " + username)
+print("Password Length: " + str(password_length))
+print("Length Score: " + str(length_score))
+print("Rotational Interval: " + str(rotational_interval) + " months")
+print("Rotations (3 yr): " + str(rotational_count))
+print("--------------------------------")
+print("NOTE: Classification requires conditionals -- coming in Week 02.")
+print("================================")
