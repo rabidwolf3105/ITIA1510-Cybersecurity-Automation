@@ -14,7 +14,7 @@ length_verdict = (
 )
 has_digit = '0' in password or '1' in password or '2' in password or '3' in password or '4' in password or '5' in password or '6' in password or '7' in password or '8' in password or '9' in password
 not_username = password != username
-rotational_verdict = (
+rotation_verdict = (
     "WARNING — rotation interval exceeds recommended maximum of 12 months" if rotation_interval > 12
     else "ACCEPTABLE — rotation interval is within recommended range" if 6 <= rotation_interval <= 12
     else "EXCELLENT — frequent rotation policy detected"
@@ -39,7 +39,7 @@ print("Digit Found: YES" if has_digit == True else "Digit Found: NO")
 #checks if digit is found in the password and prints the appropriate message
 print("Username Match: NO" if not_username == True else "Username Match: CRITICAL — password must not match username.")
 #checks if the username matches the password and prints the appropriate message
-print("Rotational Verdict: " + rotational_verdict)
+print("Rotational Verdict: " + rotation_verdict)
 print("--------------------------------")
 print("OVERALL: PASS  — password meets all checked criteria" if overall_pass == True else "OVERALL: FAIL — see findings above")
 #prints the overall pass/fail status based on the criteria checked above
