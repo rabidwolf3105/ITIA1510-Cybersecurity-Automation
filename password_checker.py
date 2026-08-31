@@ -1,10 +1,10 @@
 account = input("Enter the account you are trying to log into: ")
 username = input("Enter your username: ")
 password = input("Enter your password: ")
-rotational_interval = int(input("Enter the rotational interval (in months): "))
+rotation_interval = int(input("Enter the rotational interval (in months): "))
 password_length = len(password)
 length_score = password_length * 10
-rotational_count = 36 // rotational_interval
+rotation_count = 36 // rotation_interval
 length_verdict = (
     "WEAK — does not meet minimum length requirements" if password_length <= 8
     else "MODERATE — meets minimum but falls short of NIST recommendations" if 8 < password_length <= 11
@@ -15,8 +15,8 @@ length_verdict = (
 has_digit = '0' in password or '1' in password or '2' in password or '3' in password or '4' in password or '5' in password or '6' in password or '7' in password or '8' in password or '9' in password
 not_username = password != username
 rotational_verdict = (
-    "WARNING — rotation interval exceeds recommended maximum of 12 months" if rotational_interval > 12
-    else "ACCEPTABLE — rotation interval is within recommended range" if 6 <= rotational_interval <= 12
+    "WARNING — rotation interval exceeds recommended maximum of 12 months" if rotation_interval > 12
+    else "ACCEPTABLE — rotation interval is within recommended range" if 6 <= rotation_interval <= 12
     else "EXCELLENT — frequent rotation policy detected"
     #checks if the rotational interval is greater than 12 months, between 6 and 12 months, or less than 6 months
 )
@@ -31,8 +31,8 @@ print("Account: " + account)
 print("Username: " + username)
 print("Password Length: " + str(password_length))
 print("Length Score: " + str(length_score))
-print("Rotational Interval: " + str(rotational_interval) + " months")
-print("Rotations (3 yr): " + str(rotational_count))
+print("Rotational Interval: " + str(rotation_interval) + " months")
+print("Rotations (3 yr): " + str(rotation_count))
 print("--------------------------------")
 print("Length Verdict: " + length_verdict)
 print("Digit Found: YES" if has_digit == True else "Digit Found: NO")
