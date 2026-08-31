@@ -31,7 +31,7 @@ print("Account: " + account)
 print("Username: " + username)
 print("Password Length: " + str(password_length))
 print("Length Score: " + str(length_score))
-print("Rotational Interval: " + str(rotation_interval) + " months")
+print("Rotation Interval: " + str(rotation_interval) + " months")
 print("Rotations (3 yr): " + str(rotation_count))
 print("--------------------------------")
 print("Length Verdict: " + length_verdict)
@@ -39,7 +39,7 @@ print("Digit Found: YES" if has_digit == True else "Digit Found: NO")
 #checks if digit is found in the password and prints the appropriate message
 print("Username Match: NO" if not_username == True else "Username Match: CRITICAL — password must not match username.")
 #checks if the username matches the password and prints the appropriate message
-print("Rotational Verdict: " + rotation_verdict)
+print("Rotation Verdict: " + rotation_verdict)
 print("--------------------------------")
 print("OVERALL: PASS  — password meets all checked criteria" if overall_pass == True else "OVERALL: FAIL — see findings above")
 #prints the overall pass/fail status based on the criteria checked above
