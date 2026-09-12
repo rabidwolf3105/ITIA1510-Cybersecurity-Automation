@@ -35,17 +35,10 @@ def check_rotation(rotation_interval):
     return rotation_ok, rotation_verdict
 
 
-def audit_password(account, username, password, rotation_interval):
-    """Prints an audit report and returns passed, failed, and critical counters."""
-    length_ok, length_verdict = check_length(password)
-    has_digit = check_digit(password)
-    not_username = check_username(password, username)
-    rotation_ok, rotation_verdict = check_rotation(rotation_interval)
-    password_length = len(password)
-    length_score = password_length * 10
-    rotation_count = 36 // rotation_interval
-    overall_pass = length_ok and has_digit and not_username and rotation_ok
-
+def print_audit_report(account, username, password_length, length_score,
+                       rotation_interval, rotation_count, length_verdict,
+                       has_digit, not_username, rotation_verdict, overall_pass):
+    """Print the formatted password-audit report."""
     print("===============================")
     print("    PASSWORD AUDIT REPORT")
     print("===============================")
@@ -63,6 +56,24 @@ def audit_password(account, username, password, rotation_interval):
     print("--------------------------------")
     print("OVERALL: PASS  — password meets all checked criteria" if overall_pass else "OVERALL: FAIL — see findings above")
     print("================================")
+
+
+def audit_password(account, username, password, rotation_interval):
+    """Prints an audit report and returns passed, failed, and critical counters."""
+    length_ok, length_verdict = check_length(password)
+    has_digit = check_digit(password)
+    not_username = check_username(password, username)
+    rotation_ok, rotation_verdict = check_rotation(rotation_interval)
+    password_length = len(password)
+    length_score = password_length * 10
+    rotation_count = 36 // rotation_interval
+    overall_pass = length_ok and has_digit and not_username and rotation_ok
+
+    print_audit_report(
+        account, username, password_length, length_score, rotation_interval,
+        rotation_count, length_verdict, has_digit, not_username,
+        rotation_verdict, overall_pass
+    )
     return (1 if overall_pass else 0, 0 if overall_pass else 1, 1 if not not_username else 0)
 
 
