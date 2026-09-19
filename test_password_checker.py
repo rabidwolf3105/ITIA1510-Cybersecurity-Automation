@@ -1,5 +1,4 @@
-from password_checker import check_length, check_digit, check_username, check_rotation
-
+from password_checker import check_length, check_digit, check_username, check_rotation, check_breached, known_breached
 
 # check_length tests
 length_ok, _ = check_length("abcd")
@@ -25,6 +24,14 @@ print("PASS: check_username correctly rejected password matching username")
 
 assert check_username("password", "john") == True
 print("PASS: check_username correctly accepted password different from username")
+
+
+# check_breached tests
+assert check_breached("password") == False
+print("PASS: not_breached correctly rejected known breached password")
+
+assert check_breached("mysecretpassword") == True
+print("PASS: not_breached correctly accepted unique password")
 
 
 # check_rotation tests
