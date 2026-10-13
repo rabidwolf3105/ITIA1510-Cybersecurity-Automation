@@ -1,12 +1,18 @@
+
 from password_checker import (
     check_length,
     check_digit,
     check_username,
     check_rotation,
-    check_breached,
-    known_breached,
+    check_breach,
+    load_credentials,
+    load_breached,
+    write_report,
     policy
 )
+
+known_breached = load_breached("breached.txt")
+
 
 # check_length tests
 length_ok, _ = check_length("abcd", policy)
@@ -34,12 +40,12 @@ assert check_username("password", "john") == True
 print("PASS: check_username correctly accepted password different from username")
 
 
-# check_breached tests
-assert check_breached("password") == False
-print("PASS: check_breached correctly rejected known breached password")
+# check_breach tests
+assert check_breach("password") == False
+print("PASS: check_breach correctly rejected known breached password")
 
-assert check_breached("mysecretpassword") == True
-print("PASS: check_breached correctly accepted unique password")
+assert check_breach("mysecretpassword") == True
+print("PASS: check_breach correctly accepted unique password")
 
 
 # check_rotation tests
@@ -58,3 +64,35 @@ print("PASS: policy strong_length is 15")
 
 assert "require_digit" in policy
 print("PASS: policy contains require_digit")
+
+
+# load_credentials tests
+credentials = load_credentials("credentials.txt")
+
+assert isinstance(credentials, list)
+print("PASS: load_credentials returns a list")
+
+assert "account" in credentials[0]
+print("PASS: first credential contains an account key")
+
+
+# load_breached tests
+breached = load_breached("breached.txt")
+
+assert isinstance(breached, list)
+print("PASS: load_breached returns a list")
+
+assert "password123" in breached
+print("PASS: load_breached contains password123")
+
+
+# write_report test
+test_lines = ["First report line", "Second report line"]
+
+write_report(test_lines, "test_report.txt")
+
+with open("test_report.txt", "r") as f:
+    report_text = f.read()
+
+assert report_text == "First report line\nSecond report line\n"
+print("PASS: write_report correctly wrote both lines")

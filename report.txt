@@ -1,0 +1,12 @@
+
+========================================
+       BATCH AUDIT SUMMARY
+========================================
+Credentials audited: 0
+Passed:              0
+Failed:              0
+----------------------------------------
+Failed accounts:     
+Critical flags:      0
+Critical accounts:   
+========================================
