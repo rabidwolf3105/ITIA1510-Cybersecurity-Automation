@@ -1,12 +1,102 @@
+===============================
+    PASSWORD AUDIT REPORT
+===============================
+Account: Gmail
+Username: jsmith
+Password Length: 11 characters
+Length Score: 110 points
+Rotation Interval: 12 months
+Rotations (3 yr): 3
+--------------------------------
+Length Verdict: MODERATE -- meets minimum but falls short of NIST recommendations
+Digit Found: YES
+Username Match: NO
+Breach Check: CRITICAL -- password found in known breach list
+Rotation Verdict: ACCEPTABLE -- rotation interval within recommended range
+--------------------------------
+OVERALL: FAIL -- see findings above
+================================
+===============================
+    PASSWORD AUDIT REPORT
+===============================
+Account: SSH Server
+Username: jsmith
+Password Length: 6 characters
+Length Score: 60 points
+Rotation Interval: 24 months
+Rotations (3 yr): 1
+--------------------------------
+Length Verdict: CRITICAL -- below minimum length
+Digit Found: NO
+Username Match: CRITICAL -- password must not match username
+Breach Check: PASS -- password is not in known breach list
+Rotation Verdict: CRITICAL -- rotation interval exceeds maximum
+--------------------------------
+OVERALL: FAIL -- see findings above
+================================
+===============================
+    PASSWORD AUDIT REPORT
+===============================
+Account: VPN
+Username: jsmith
+Password Length: 18 characters
+Length Score: 180 points
+Rotation Interval: 3 months
+Rotations (3 yr): 12
+--------------------------------
+Length Verdict: STRONG -- meets NIST recommendations
+Digit Found: YES
+Username Match: NO
+Breach Check: PASS -- password is not in known breach list
+Rotation Verdict: GOOD -- rotation interval is within recommended range
+--------------------------------
+OVERALL: PASS -- password meets all checked criteria
+================================
+===============================
+    PASSWORD AUDIT REPORT
+===============================
+Account: Company Email
+Username: jsmith
+Password Length: 11 characters
+Length Score: 110 points
+Rotation Interval: 6 months
+Rotations (3 yr): 6
+--------------------------------
+Length Verdict: MODERATE -- meets minimum but falls short of NIST recommendations
+Digit Found: YES
+Username Match: NO
+Breach Check: PASS -- password is not in known breach list
+Rotation Verdict: GOOD -- rotation interval is within recommended range
+--------------------------------
+OVERALL: PASS -- password meets all checked criteria
+================================
+===============================
+    PASSWORD AUDIT REPORT
+===============================
+Account: GitHub
+Username: jsmith
+Password Length: 22 characters
+Length Score: 220 points
+Rotation Interval: 6 months
+Rotations (3 yr): 6
+--------------------------------
+Length Verdict: STRONG -- meets NIST recommendations
+Digit Found: YES
+Username Match: NO
+Breach Check: PASS -- password is not in known breach list
+Rotation Verdict: GOOD -- rotation interval is within recommended range
+--------------------------------
+OVERALL: PASS -- password meets all checked criteria
+================================
 
 ========================================
        BATCH AUDIT SUMMARY
 ========================================
-Credentials audited: 0
-Passed:              0
-Failed:              0
+Credentials audited: 5
+Passed:              3
+Failed:              2
 ----------------------------------------
-Failed accounts:     
-Critical flags:      0
-Critical accounts:   
+Failed accounts:     Gmail, SSH Server
+Critical flags:      2
+Critical accounts:   Gmail, SSH Server
 ========================================
