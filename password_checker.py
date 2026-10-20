@@ -1,3 +1,13 @@
+import json
+
+def save_summary(summary, filepath):
+    with open(filepath, "w") as file:
+        json.dump(summary, file, indent=2)
+
+def load_summary(filepath):
+    with open(filepath, "r") as file:
+        return json.load(file)
+
 policy = {
     "min_length": 8,
     "strong_length": 15,
@@ -178,6 +188,7 @@ def audit_password(
         rotation_interval, policy
     )
 
+    # Check if the password is in the known breach list, if that check is enabled in the policy.
     if policy["check_breach_list"]:
         not_breached_ok = check_breach(password, known_breached)
     else:
@@ -317,3 +328,4 @@ if __name__ == "__main__":
 
     # Save the report in the same folder as this script.
     write_report(report_lines, os.path.join(base_dir, "report.txt"))
+    save_summary(summary, "audit_summary.json")

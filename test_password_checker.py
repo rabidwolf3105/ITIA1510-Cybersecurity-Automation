@@ -7,8 +7,12 @@ from password_checker import (
     check_breach,
     load_credentials,
     load_breached,
+    load_summary,
+    save_summary,
     write_report,
-    policy
+    policy,
+    save_summary,
+    load_summary,
 )
 
 known_breached = load_breached("breached.txt")
@@ -96,3 +100,41 @@ with open("test_report.txt", "r") as f:
 
 assert report_text == "First report line\nSecond report line\n"
 print("PASS: write_report correctly wrote both lines")
+
+# Test 1: Saved summary matches the original dictionary
+sample = {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "critical": 1,
+    "failed_accounts": ["Gmail"],
+    "critical_accounts": ["Gmail"]
+}
+
+save_summary(sample, "test_summary.json")
+assert load_summary("test_summary.json") == sample
+print("PASS: save_summary and load_summary gave back the same dictionary")
+
+
+# Test 2: failed_accounts is a list, not a string
+loaded = load_summary("test_summary.json")
+assert isinstance(loaded["failed_accounts"], list)
+print("PASS: failed_accounts is a list")
+
+
+# Test 3: No passwords appear in the saved summary
+with open("credentials.txt", "r") as file:
+    credentials_text = file.read()
+
+with open("test_summary.json", "r") as file:
+    saved_text = file.read()
+
+# Check each password from credentials.txt
+for line in credentials_text.splitlines():
+    parts = line.strip().split(":")
+    if len(parts) >= 2:
+        password = parts[1].strip()
+        if password:
+            assert password not in saved_text
+
+print("PASS: No passwords appear in the saved summary")
