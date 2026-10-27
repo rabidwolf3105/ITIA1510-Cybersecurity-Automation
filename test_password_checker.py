@@ -1,3 +1,5 @@
+import os
+import tempfile
 
 from password_checker import (
     check_length,
@@ -11,8 +13,9 @@ from password_checker import (
     save_summary,
     write_report,
     policy,
-    save_summary,
-    load_summary,
+    load_history,
+    add_to_history,
+    save_history,
 )
 
 known_breached = load_breached("breached.txt")
@@ -45,10 +48,10 @@ print("PASS: check_username correctly accepted password different from username"
 
 
 # check_breach tests
-assert check_breach("password") == False
+assert check_breach("password", known_breached) == False
 print("PASS: check_breach correctly rejected known breached password")
 
-assert check_breach("mysecretpassword") == True
+assert check_breach("mysecretpassword", known_breached) == True
 print("PASS: check_breach correctly accepted unique password")
 
 
@@ -101,6 +104,7 @@ with open("test_report.txt", "r") as f:
 assert report_text == "First report line\nSecond report line\n"
 print("PASS: write_report correctly wrote both lines")
 
+
 # Test 1: Saved summary matches the original dictionary
 sample = {
     "total": 2,
@@ -138,3 +142,51 @@ for line in credentials_text.splitlines():
             assert password not in saved_text
 
 print("PASS: No passwords appear in the saved summary")
+
+
+# History Test 1: Missing file returns an empty list
+with tempfile.TemporaryDirectory() as temp_dir:
+    missing_path = os.path.join(temp_dir, "missing_history.json")
+    assert load_history(missing_path) == []
+
+print("PASS: load_history returns an empty list for a missing file")
+
+
+# History Test 2: First run number is 1
+sample_history_summary = {
+    "passed": 2,
+    "failed": 3,
+    "critical_accounts": ["Gmail", "SSH Server"]
+}
+
+history = add_to_history([], sample_history_summary, 3)
+
+assert history[0]["run"] == 1
+assert history[0]["passed"] == 2
+assert history[0]["failed"] == 3
+assert history[0]["critical_accounts"] == ["Gmail", "SSH Server"]
+
+print("PASS: add_to_history creates the first run correctly")
+
+
+# History Test 3: Only the newest runs are kept
+history = []
+history = add_to_history(history, sample_history_summary, 3)
+history = add_to_history(history, sample_history_summary, 3)
+history = add_to_history(history, sample_history_summary, 2)
+
+assert [entry["run"] for entry in history] == [2, 3]
+
+print("PASS: add_to_history keeps the newest runs")
+
+
+# History Test 4: Saved history matches the original
+with tempfile.TemporaryDirectory() as temp_dir:
+    history_path = os.path.join(temp_dir, "audit_history.json")
+
+    save_history(history, history_path)
+    loaded_history = load_history(history_path)
+
+    assert loaded_history == history
+
+print("PASS: save_history and load_history preserve history")

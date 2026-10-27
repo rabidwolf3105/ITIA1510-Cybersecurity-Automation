@@ -1,4 +1,40 @@
+import os
 import json
+
+
+def load_history(filepath):
+    # Return an empty list when the history file does not exist yet.
+    if not os.path.exists(filepath):
+        return []
+
+    with open(filepath, "r") as file:
+        return json.load(file)
+
+
+def add_to_history(history, summary, keep):
+    if history:
+        # Use the newest run number because old entries may have been trimmed.
+        run_number = history[-1]["run"] + 1
+    else:
+        run_number = 1
+
+    entry = {
+        "run": run_number,
+        "passed": summary["passed"],
+        "failed": summary["failed"],
+        "critical_accounts": summary["critical_accounts"]
+    }
+
+    history.append(entry)
+
+    # Keep only the newest entries allowed by the policy.
+    return history[-keep:]
+
+
+def save_history(history, filepath):
+    with open(filepath, "w") as file:
+        json.dump(history, file, indent=2)
+
 
 def save_summary(summary, filepath):
     with open(filepath, "w") as file:
@@ -14,7 +50,8 @@ policy = {
     "max_rotation_months": 12,
     "good_rotation_months": 6,
     "require_digit": True,
-    "check_breach_list": True
+    "check_breach_list": True,
+    "history_runs": 3
 }
 
 
@@ -329,3 +366,6 @@ if __name__ == "__main__":
     # Save the report in the same folder as this script.
     write_report(report_lines, os.path.join(base_dir, "report.txt"))
     save_summary(summary, "audit_summary.json")
+    history = load_history("audit_history.json")
+    history = add_to_history(history, summary, policy["history_runs"])
+    save_history(history, "audit_history.json")
