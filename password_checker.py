@@ -57,6 +57,8 @@ policy = {
 
 def write_report(report_lines, filepath):
     """Write each string in report_lines to the file as one line."""
+
+    # Use with to automatically close the file after writing.
     with open(filepath, "w") as f:
         for line in report_lines:
             f.write(line + "\n")
@@ -70,6 +72,7 @@ def load_credentials(filepath):
         for line in f:
             line = line.strip()
 
+            # Skip blank lines so they are not treated as credentials.
             if line == "":
                 continue
 
@@ -103,6 +106,29 @@ def check_breach(password, known_breached):
     """Return True if the password is not in the breach list."""
     return password not in known_breached
 
+def breach_verdicts(username, credentials, known_breached):
+    results = {
+        "username": username,
+        "accounts": []
+    }
+
+    # Find credentials belonging to the requested username.
+    for credential in credentials:
+        if credential["username"] == username:
+
+            # Reverse check_breach because it returns True when a password is NOT breached.
+            on_breach_list = not check_breach(
+                credential["password"],
+                known_breached
+            )
+
+            # Leave out the password to protect sensitive credential information.
+            results["accounts"].append({
+                "account": credential["account"],
+                "on_breach_list": on_breach_list
+            })
+
+    return results
 
 def check_length(password, policy):
     """Check password length and return a Boolean and verdict."""
@@ -111,14 +137,13 @@ def check_length(password, policy):
     if password_length < policy["min_length"]:
         length_verdict = "CRITICAL -- below minimum length"
         length_ok = False
-    elif password_length >= policy["strong_length"]:
-        length_verdict = "STRONG -- meets NIST recommendations"
-        length_ok = True
+
+    elif password_length < policy["strong_length"]:
+        length_verdict = "MODERATE -- meets minimum but falls short of NIST recommendations"
+        length_ok = False
+
     else:
-        length_verdict = (
-            "MODERATE -- meets minimum but falls short of "
-            "NIST recommendations"
-        )
+        length_verdict = "STRONG -- meets NIST recommendations"
         length_ok = True
 
     return length_ok, length_verdict
@@ -282,27 +307,28 @@ def audit_password(
         1 if critical else 0
     )
 
-
-
-
 if __name__ == "__main__":
-    import os
 
     # Find the folder containing this Python script.
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Load the input files.
+    # Set the paths for all input and output files.
     credentials_path = os.path.join(base_dir, "credentials.txt")
     breached_path = os.path.join(base_dir, "breached.txt")
+    report_path = os.path.join(base_dir, "report.txt")
+    summary_path = os.path.join(base_dir, "audit_summary.json")
+    history_path = os.path.join(base_dir, "audit_history.json")
 
+    # Load the input files.
     credentials = load_credentials(credentials_path)
     known_breached = load_breached(breached_path)
 
     # Create the list that stores the report.
     report_lines = []
 
-    print("DEBUG - Credentials loaded:", len(credentials))
-    print("DEBUG - Credentials:", credentials)
+    report_lines.append(
+        "DEBUG - Credentials loaded: " + str(len(credentials))
+    )
 
     # Initialize the batch summary counters.
     summary = {
@@ -364,8 +390,21 @@ if __name__ == "__main__":
         print(line)
 
     # Save the report in the same folder as this script.
-    write_report(report_lines, os.path.join(base_dir, "report.txt"))
-    save_summary(summary, "audit_summary.json")
-    history = load_history("audit_history.json")
-    history = add_to_history(history, summary, policy["history_runs"])
-    save_history(history, "audit_history.json")
+    write_report(report_lines, report_path)
+    save_summary(summary, summary_path)
+
+    history = load_history(history_path)
+    history = add_to_history(
+        history, summary, policy["history_runs"]
+    )
+    save_history(history, history_path)
+
+    # Generate breach verdicts for jsmith
+    verdicts = breach_verdicts("jsmith", credentials, known_breached)
+
+    # Print verdicts as formatted JSON
+    print(json.dumps(verdicts, indent=2))
+
+    # Save verdicts to breach_check.json
+    with open("breach_check.json", "w") as file:
+        json.dump(verdicts, file, indent=2)

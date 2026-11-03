@@ -1,3 +1,4 @@
+DEBUG - Credentials loaded: 5
 ===============================
     PASSWORD AUDIT REPORT
 ===============================
@@ -68,7 +69,7 @@ Username Match: NO
 Breach Check: PASS -- password is not in known breach list
 Rotation Verdict: GOOD -- rotation interval is within recommended range
 --------------------------------
-OVERALL: PASS -- password meets all checked criteria
+OVERALL: FAIL -- see findings above
 ================================
 ===============================
     PASSWORD AUDIT REPORT
@@ -93,10 +94,10 @@ OVERALL: PASS -- password meets all checked criteria
        BATCH AUDIT SUMMARY
 ========================================
 Credentials audited: 5
-Passed:              3
-Failed:              2
+Passed:              2
+Failed:              3
 ----------------------------------------
-Failed accounts:     Gmail, SSH Server
+Failed accounts:     Gmail, SSH Server, Company Email
 Critical flags:      2
 Critical accounts:   Gmail, SSH Server
 ========================================
