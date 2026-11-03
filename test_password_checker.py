@@ -16,19 +16,84 @@ from password_checker import (
     load_history,
     add_to_history,
     save_history,
+    breach_verdicts,
 )
 
 known_breached = load_breached("breached.txt")
 
 
+# Breach Verdicts Test 1: jsmith's Gmail password is breached
+result = breach_verdicts(
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result["accounts"][0] == {
+    "account": "Gmail",
+    "on_breach_list": True
+}
+
+print("PASS: breach_verdicts marked the Gmail password as on the breach list")
+
+
+# Breach Verdicts Test 2: Username with no accounts
+result = breach_verdicts(
+    "nobody",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result["username"] == "nobody"
+assert result["accounts"] == []
+
+print("PASS: breach_verdicts returned an empty account list for nobody")
+
+
+# Breach Verdicts Test 3: No passwords appear in the result
+import json
+
+result = breach_verdicts(
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+result_text = json.dumps(result)
+
+with open("credentials.txt", "r") as file:
+    credentials_text = file.read()
+
+for line in credentials_text.splitlines():
+    parts = line.strip().split(",")
+
+    if len(parts) >= 3:
+        account = parts[0].strip()
+        username = parts[1].strip()
+        password = parts[2].strip()
+
+        if password and not (account == "SSH Server" and password == username):
+            assert password not in result_text
+
+print("PASS: breach_verdicts does not expose passwords")
+
 # check_length tests
+
 length_ok, _ = check_length("abcd", policy)
 assert length_ok == False
 print("PASS: check_length correctly rejected 4-character password")
 
-length_ok, _ = check_length("abcdefghijklmnop", policy)
+length_ok, _ = check_length("abcdefgh", policy)
+assert length_ok == False
+print("PASS: check_length correctly rejected 8-character password")
+
+length_ok, _ = check_length("abcdefghijklmn", policy)
+assert length_ok == False
+print("PASS: check_length correctly rejected 14-character password")
+
+length_ok, _ = check_length("abcdefghijklmno", policy)
 assert length_ok == True
-print("PASS: check_length correctly accepted 16-character password")
+print("PASS: check_length correctly accepted 15-character password")
 
 
 # check_digit tests
@@ -77,10 +142,10 @@ print("PASS: policy contains require_digit")
 credentials = load_credentials("credentials.txt")
 
 assert isinstance(credentials, list)
-print("PASS: load_credentials returns a list")
-
+assert len(credentials) > 0
 assert "account" in credentials[0]
-print("PASS: first credential contains an account key")
+
+print("PASS: load_credentials returns credentials with an account key")
 
 
 # load_breached tests
@@ -135,9 +200,11 @@ with open("test_summary.json", "r") as file:
 
 # Check each password from credentials.txt
 for line in credentials_text.splitlines():
-    parts = line.strip().split(":")
-    if len(parts) >= 2:
-        password = parts[1].strip()
+    parts = line.strip().split(",")
+
+    if len(parts) >= 3:
+        password = parts[2].strip()
+
         if password:
             assert password not in saved_text
 
