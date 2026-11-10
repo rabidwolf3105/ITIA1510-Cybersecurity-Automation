@@ -17,6 +17,10 @@ from password_checker import (
     add_to_history,
     save_history,
     breach_verdicts,
+    length_verdicts,
+    rotation_verdicts,
+    run_check,
+    CHECK_NAMES,
 )
 
 known_breached = load_breached("breached.txt")
@@ -257,3 +261,65 @@ with tempfile.TemporaryDirectory() as temp_dir:
     assert loaded_history == history
 
 print("PASS: save_history and load_history preserve history")
+
+# Length Verdicts Test 1
+result = length_verdicts(
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result["username"] == "jsmith"
+assert isinstance(result["accounts"], list)
+
+for account in result["accounts"]:
+    assert "account" in account
+    assert "long_enough" in account
+    assert isinstance(account["long_enough"], bool)
+
+print("PASS: length_verdicts returns the correct structure")
+
+
+# Rotation Verdicts Test 1
+result = rotation_verdicts(
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result["username"] == "jsmith"
+
+for account in result["accounts"]:
+    assert "account" in account
+    assert "rotation_months" in account
+    assert "rotation_ok" in account
+    assert isinstance(account["rotation_ok"], bool)
+
+print("PASS: rotation_verdicts returns the correct structure")
+
+
+# Run Check Test 1
+result = run_check(
+    "check_length",
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result["username"] == "jsmith"
+assert "accounts" in result
+
+print("PASS: run_check correctly runs check_length")
+
+
+# Run Check Test 2
+result = run_check(
+    "unknown_check",
+    "jsmith",
+    load_credentials("credentials.txt"),
+    known_breached
+)
+
+assert result == {"error": "unknown check"}
+
+print("PASS: run_check handles unknown checks")
