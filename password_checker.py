@@ -187,6 +187,83 @@ def check_rotation(rotation_interval, policy):
 
     return rotation_ok, rotation_verdict
 
+def length_verdicts(username, credentials, known_breached):
+    results = {
+        "username": username,
+        "accounts": []
+    }
+
+    for credential in credentials:
+        if credential["username"] == username:
+
+            long_enough, length_verdict = check_length(
+                credential["password"],
+                policy
+            )
+
+            results["accounts"].append({
+                "account": credential["account"],
+                "long_enough": long_enough
+            })
+
+    return results
+
+
+def rotation_verdicts(username, credentials, known_breached):
+    results = {
+        "username": username,
+        "accounts": []
+    }
+
+    for credential in credentials:
+        if credential["username"] == username:
+
+            rotation_ok, rotation_verdict = check_rotation(
+                credential["rotation_interval"],
+                policy
+            )
+
+            results["accounts"].append({
+                "account": credential["account"],
+                "rotation_months": credential["rotation_interval"],
+                "rotation_ok": rotation_ok
+            })
+
+    return results
+
+CHECK_NAMES = [
+    "check_breach",
+    "check_length",
+    "check_rotation"
+]
+
+def run_check(name, username, credentials, known_breached):
+
+    if name == "check_breach":
+        result = breach_verdicts(
+            username,
+            credentials,
+            known_breached
+        )
+
+    elif name == "check_length":
+        result = length_verdicts(
+            username,
+            credentials,
+            known_breached
+        )
+
+    elif name == "check_rotation":
+        result = rotation_verdicts(
+            username,
+            credentials,
+            known_breached
+        )
+
+    else:
+        result = {"error": "unknown check"}
+
+    return result
 
 def print_audit_report(
     account, username, password_length, length_score,
@@ -405,6 +482,22 @@ if __name__ == "__main__":
     # Print verdicts as formatted JSON
     print(json.dumps(verdicts, indent=2))
 
+    
     # Save verdicts to breach_check.json
     with open("breach_check.json", "w") as file:
         json.dump(verdicts, file, indent=2)
+
+    # Generate all three checks for jsmith
+    all_checks = {}
+
+    for name in CHECK_NAMES:
+        all_checks[name] = run_check(
+            name,
+            "jsmith",
+            credentials,
+            known_breached
+        )
+
+    # Save all checks to all_checks.json
+    with open("all_checks.json", "w") as file:
+        json.dump(all_checks, file, indent=2)
