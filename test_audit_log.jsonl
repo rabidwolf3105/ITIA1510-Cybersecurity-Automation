@@ -1,0 +1,3 @@
+{"time": "2026-11-17T20:09:36.287013+00:00", "check": "check_length", "username": "jsmith", "result": {"username": "jsmith", "accounts": []}}
+{"time": "2026-11-17T20:09:36.288611+00:00", "check": "check_length", "username": "jsmith", "result": {"username": "jsmith", "accounts": [{"account": "Gmail", "long_enough": false}, {"account": "SSH Server", "long_enough": false}, {"account": "VPN", "long_enough": true}, {"account": "Company Email", "long_enough": false}, {"account": "GitHub", "long_enough": true}]}}
+{"time": "2026-11-17T20:09:36.288972+00:00", "check": "reset_password", "username": "jsmith", "result": {"error": "unknown check"}}

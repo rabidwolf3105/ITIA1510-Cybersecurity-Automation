@@ -1,5 +1,7 @@
 import os
+import json
 import tempfile
+import password_checker
 
 from password_checker import (
     check_length,
@@ -21,10 +23,13 @@ from password_checker import (
     rotation_verdicts,
     run_check,
     CHECK_NAMES,
+    log_check,
+    read_audit_log,
 )
 
 known_breached = load_breached("breached.txt")
-
+# Send all test check entries to a separate log.
+password_checker.AUDIT_LOG = "test_audit_log.jsonl"
 
 # Breach Verdicts Test 1: jsmith's Gmail password is breached
 result = breach_verdicts(
@@ -323,3 +328,84 @@ result = run_check(
 assert result == {"error": "unknown check"}
 
 print("PASS: run_check handles unknown checks")
+# Week 13 Audit Log Tests
+
+# Remove the previous test log so every test run starts fresh.
+if os.path.exists("test_audit_log.jsonl"):
+    os.remove("test_audit_log.jsonl")
+
+
+# Audit Log Test 1: Check that log_check writes the correct keys.
+
+log_check(
+    "check_length",
+    "jsmith",
+    {"username": "jsmith", "accounts": []},
+    "test_audit_log.jsonl"
+)
+
+entries = read_audit_log("test_audit_log.jsonl")
+
+assert len(entries) == 1
+
+assert set(entries[0].keys()) == {
+    "check",
+    "result",
+    "time",
+    "username"
+}
+
+print("PASS: log_check writes an entry with exactly four keys")
+
+
+# Audit Log Test 2: run_check logs successful and refused checks.
+
+credentials = load_credentials("credentials.txt")
+
+run_check(
+    "check_length",
+    "jsmith",
+    credentials,
+    known_breached
+)
+
+run_check(
+    "reset_password",
+    "jsmith",
+    credentials,
+    known_breached
+)
+
+entries = read_audit_log("test_audit_log.jsonl")
+
+assert entries[-2]["check"] == "check_length"
+assert entries[-1]["check"] == "reset_password"
+
+assert entries[-1]["result"] == {
+    "error": "unknown check"
+}
+
+print("PASS: run_check logs successful and refused checks in order")
+
+# Audit Log Test 3: No passwords appear in the audit log.
+
+with open("credentials.txt", "r") as file:
+    credentials_text = file.read()
+
+with open("test_audit_log.jsonl", "r") as file:
+    audit_text = file.read()
+
+for line in credentials_text.splitlines():
+    parts = line.strip().split(",")
+
+    if len(parts) >= 3:
+        account = parts[0].strip()
+        username = parts[1].strip()
+        password = parts[2].strip()
+
+        if password and not (
+            account == "SSH Server" and password == username
+        ):
+            assert password not in audit_text
+
+print("PASS: No passwords appear in the audit log")
