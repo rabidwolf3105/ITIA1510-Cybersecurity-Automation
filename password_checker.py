@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime, timezone
 
 
 def load_history(filepath):
@@ -54,6 +55,39 @@ policy = {
     "history_runs": 3
 }
 
+AUDIT_LOG = "audit_log.jsonl"
+
+def log_check(name, username, result, log_path):
+    """Append one check result to the audit log."""
+
+    entry = {
+        "time": datetime.now(timezone.utc).isoformat(),
+        "check": name,
+        "username": username,
+        "result": result
+    }
+
+    # UTC provides a consistent timezone for comparing audit timestamps.
+    # Append mode adds a new entry without deleting existing entries.
+    with open(log_path, "a") as file:
+        file.write(json.dumps(entry) + "\n")
+
+def read_audit_log(log_path):
+    """Read the audit log and return its entries oldest first."""
+
+    entries = []
+
+    with open(log_path, "r") as file:
+        for line in file:
+            line = line.strip()
+
+            # Skip blank lines in the audit log.
+            if line == "":
+                continue
+
+            entries.append(json.loads(line))
+
+    return entries
 
 def write_report(report_lines, filepath):
     """Write each string in report_lines to the file as one line."""
@@ -262,6 +296,10 @@ def run_check(name, username, credentials, known_breached):
 
     else:
         result = {"error": "unknown check"}
+
+    # Logging here records every requested check, including refused names,
+    # instead of relying on individual verdict functions to log themselves.
+    log_check(name, username, result, AUDIT_LOG)
 
     return result
 
@@ -501,3 +539,12 @@ if __name__ == "__main__":
     # Save all checks to all_checks.json
     with open("all_checks.json", "w") as file:
         json.dump(all_checks, file, indent=2)
+
+    # Count all entries currently stored in the audit log.
+    audit_entries = read_audit_log(AUDIT_LOG)
+
+    print(
+        "audit_log.jsonl holds "
+        + str(len(audit_entries))
+        + " entries"
+    )
